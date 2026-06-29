@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEC Educational Consultancy Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @media print {
+            body { background-color: white !important; }
+            .print-exact {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-serif print:bg-white print:text-black">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const ZEC_INFO = {
+            name: "ZEC Educational Consultancy Services",
+            dti: "DTI Permit No. 7342260",
+            bir: "TIN: 730-248-375-00000 (Non-VAT)",
+            email: "zecconsultancy2025@gmail.com",
+            mobile: "09451570338",
+            address: "Blk 11 Lot 9-A Ilang-ilang St. JPA Subd. Tunasan, Muntinlupa City, Fourth District Philippines"
+        };
+
+        function App() {
+            const [view, setView] = useState('home');
+            const [activeOrder, setActiveOrder] = useState(null);
+            const [orders, setOrders] = useState([]);
+            const [certIndex, setCertIndex] = useState(1);
+
+            useEffect(() => {
+                const savedOrders = localStorage.getItem('zec_orders');
+                if (savedOrders) {
+                    setOrders(JSON.parse(savedOrders));
+                }
+            }, []);
+
+            const saveOrders = (updatedOrders) => {
+                setOrders(updatedOrders);
+                localStorage.setItem('zec_orders', JSON.stringify(updatedOrders));
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col justify-between">
+                    {/* Top Navigation */}
+                    <nav className="bg-purple-900 text-white p-4 shadow-xl print:hidden">
+                        <div className="max-w-4xl mx-auto flex justify-between items-center flex-wrap gap-2">
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('home')}>
+                                <img src="zec logo_3.jpg" alt="ZEC Logo" className="w-12 h-12 object-contain rounded-full bg-white p-0.5 shadow" onError={(e) => e.target.style.display = 'none'} />
+                                <h1 className="font-bold text-lg tracking-tight">{ZEC_INFO.name}</h1>
+                            </div>
+                            <div className="flex items-center gap-6 text-sm font-semibold">
+                                <button onClick={() => setView('home')} className="hover:text-yellow-400 transition">Home</button>
+                                <button onClick={() => setView('order')} className="bg-yellow-500 text-purple-900 px-4 py-1.5 rounded-full hover:bg-yellow-400 transition shadow">Order</button>
+                                <button onClick={() => setView('admin-login')} className="text-purple-300 hover:text-white text-xs border border-purple-700 px-2 py-1 rounded">Admin</button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main className="max-w-4xl mx-auto p-4 md:p-8 flex-grow w-full print:p-0 print:max-w-none">
+                        {view === 'home' && <HomeView setView={setView} />}
+                        {view === 'order' && <OrderView setView={setView} setActiveOrder={setActiveOrder} saveOrders={saveOrders} orders={orders} />}
+                        {view === 'agreement' && activeOrder && <AgreementView order={activeOrder} setView={setView} />}
+                        {view === 'success' && <SuccessView setView={setView} />}
+                        {view === 'admin-login' && <AdminLogin setView={setView} />}
+                        {view === 'admin-dashboard' && <AdminDashboard setView={setView} orders={orders} saveOrders={saveOrders} setActiveOrder={setActiveOrder} setCertIndex={setCertIndex} />}
+                        {view === 'certificate' && activeOrder && <CertificateView order={activeOrder} setView={setView} certIndex={certIndex} />}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-200 p-6 text-center text-xs text-slate-600 mt-8 print:hidden">
+                        <p className="font-bold text-purple-900 mb-1">{ZEC_INFO.name}</p>
+                        <p className="mb-2">DTI Permit No. 7342260 | BIR OCN: 53BRC20260000002728 | Contact: {ZEC_INFO.mobile}</p>
+                        <p className="text-slate-400">&copy; All rights reserved 2026.</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        function HomeView({ setView }) {
+            return (
+                <div className="space-y-8">
+                    <div className="text-center bg-white p-8 md:p-12 rounded-2xl shadow-md border border-purple-100/50">
+                        <img src="zec logo_3.jpg" alt="ZEC Logo" className="w-24 h-24 object-contain rounded-full bg-white p-1 shadow-md mx-auto mb-4" onError={(e) => e.target.style.display = 'none'} />
+                        <h2 className="text-3xl font-extrabold text-purple-900 mb-4">Welcome to ZEC!</h2>
+                        <p className="text-base text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed font-sans">
+                            We deliver professional proofreading, grammar checking, and academic editing services that support high-quality written outputs for students and professionals.
+                        </p>
+                        <button onClick={() => setView('order')} className="bg-purple-600 text-white px-8 py-3.5 rounded-full font-bold shadow-lg hover:bg-purple-700 transition transform hover:scale-[1.01]">
+                            Start Service Request
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function OrderView({ setView, setActiveOrder, saveOrders, orders }) {
+            const [form, setForm] = useState({ name: '', title: '', words: '', type: 'proofreading', speed: 'regular' });
+            const [calculatedPrice, setCalculatedPrice] = useState(0);
+            const [timeframe, setTimeframe] = useState('');
+            const [hasEmailed, setHasEmailed] = useState(false);
+
+            useEffect(() => {
+                const count = parseInt(form.words, 10);
+                if (isNaN(count) || count <= 0) {
+                    setCalculatedPrice(0);
+                    setTimeframe('');
+                    return;
+                }
+                // Simplipuhadong calculation base sa hiningi mo
+                setCalculatedPrice(2000);
+                setTimeframe('3-5');
+            }, [form.words, form.type, form.speed]);
+
+            const submit = () => {
+                if (!form.name.trim() || !form.title.trim() || !form.words) {
+                    return alert("Please fill in all fields.");
+                }
+                if (!hasEmailed) {
+                    return alert("Please verify email submission.");
+                }
+
+                const newOrder = {
+                    id: 'ZEC-' + Date.now(),
+                    ...form,
+                    price: calculatedPrice,
+                    timeframe: timeframe,
+                    date: '6/30/2026'
+                };
+
+                saveOrders([...orders, newOrder]);
+                setActiveOrder(newOrder);
+                setView('agreement');
+            };
+
+            return (
+                <div className="bg-white p-6 rounded-2xl shadow border max-w-xl mx-auto font-sans">
+                    <h2 className="text-2xl font-bold mb-6 text-purple-900 font-serif">Service Request Form</h2>
+                    <div className="space-y-4 mb-6">
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Client Name</label>
+                            <input className="w-full p-3 border rounded-xl" placeholder="e.g., ssxs" onChange={e => setForm({...form, name: e.target.value})} />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Paper Asset Title</label>
+                            <input className="w-full p-3 border rounded-xl" placeholder="e.g., cscs" onChange={e => setForm({...form, title: e.target.value})} />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Word Count</label>
+                            <input type="number" className="w-full p-3 border rounded-xl" placeholder="e.g., 1222" onChange={e => setForm({...form, words: e.target.value})} />
+                        </div>
+                    </div>
+
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6 text-xs">
+                        <label className="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" className="mt-0.5" checked={hasEmailed} onChange={(e) => setHasEmailed(e.target.checked)} />
+                            <span>I confirm files have been sent to zecconsultancy2025@gmail.com</span>
+                        </label>
+                    </div>
+
+                    <button onClick={submit} className="w-full bg-purple-600 text-white py-3 rounded-xl font-bold">Submit Request</button>
+                </div>
+            );
+        }
+
+        function AgreementView({ order, setView }) {
+            const [agreed, setAgreed] = useState(false);
+
+            return (
+                <div className="max-w-2xl mx-auto space-y-6">
+                    <div className="flex justify-between items-center print:hidden">
+                        <button onClick={() => setView('home')} className="text-sm font-bold text-slate-600">← Home</button>
+                        <button onClick={() => window.print()} className="bg-purple-900 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-md">Print / Download</button>
+                    </div>
+
+                    <div className="bg-white p-8 md:p-12 shadow-lg border rounded-2xl font-sans text-sm space-y-6 text-slate-900 print:shadow-none print:border-none print:p-0">
+                        <p className="leading-relaxed">
+                            This request agreement is verified between <strong>Z.E.C. Educational Consultancy Services</strong> and client <strong>{order.name}</strong> on <strong>{order.date}</strong>.
+                        </p>
+
+                        <div className="space-y-2">
+                            <p><strong>Scope of Work Paper Asset:</strong> "{order.title}" ({order.words} words)</p>
+                            <p><strong>Speed Category Option:</strong> regular Delivery ({order.timeframe} Days (Subject to complexity))</p>
+                        </div>
+
+                        <div>
+                            <p className="font-bold text-slate-700 uppercase text-xs mb-1">Total Amount Valuation Calculation Due:</p>
+                            <p className="text-2xl font-black text-purple-950">₱{parseFloat(order.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+                        </div>
+
+                        <div className="space-y-4 border-t pt-4">
+                            <div>
+                                <h4 className="font-bold text-base text-purple-950 font-serif mb-1">Work First, Pay Later</h4>
+                                <p className="text-slate-700 text-xs leading-relaxed">
+                                    We complete your requested service first and send the finished paper. Full payment is required upon receiving the paper. The certificate and/or receipt will be provided after the payment is confirmed.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 className="font-bold text-base text-purple-950 font-serif mb-1">Confidentiality</h4>
+                                <p className="text-slate-700 text-xs leading-relaxed">
+                                    Your personal information, files, and documents are kept private and confidential. We do not share, sell, or disclose your data to anyone. All information is handled securely and used only to complete the requested service.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-5 text-center space-y-4">
+                            <p className="text-xs font-bold uppercase tracking-wider text-purple-900 font-serif">Official Payment Channels</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="bg-slate-50 p-3 border rounded-xl flex flex-col items-center">
+                                    <span className="text-xs font-bold text-slate-700 mb-2">GCash Channel</span>
+                                    <img src="gcash zec.jpg" alt="GCash QR" className="w-full max-w-[170px] h-auto rounded-lg" />
+                                </div>
+                                <div className="bg-slate-50 p-3 border rounded-xl flex flex-col items-center">
+                                    <span className="text-xs font-bold text-slate-700 mb-2">Manny Pay Channel</span>
+                                    <img src="image_d8673d.jpg" alt="Manny Pay QR" className="w-full max-w-[170px] h-auto rounded-lg" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-4 border-t print:hidden space-y-4">
+                            <label className="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" className="mt-0.5" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+                                <span className="text-xs font-bold text-slate-700">I have reviewed and verified this agreement.</span>
+                            </label>
+                            <button onClick={() => agreed ? setView('success') : alert("Please check the verification box first.")} className={`w-full text-white py-3 rounded-xl font-bold transition text-sm ${agreed ? 'bg-purple-600' : 'bg-slate-300'}`}>
+                                Acknowledge & Return Home
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // HETO YUNG GREEN SUCCESS SCREEN NA HININGI MO
+        function SuccessView({ setView }) {
+            return (
+                <div className="bg-white p-8 rounded-2xl shadow-xl border border-green-100 max-w-md mx-auto text-center font-sans my-12">
+                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-900 mb-2 font-serif">Has been submitted!</h2>
+                    <div className="text-xl font-extrabold text-purple-900 mb-8 tracking-wide italic">
+                        Thanks for choosing ZEC!
+                    </div>
+                    <button onClick={() => setView('home')} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold transition">
+                        Go Back to Home
+                    </button>
+                </div>
+            );
+        }
+
+        function AdminLogin({ setView }) { return <div className="text-center p-8">Admin Portal</div>; }
+        function AdminDashboard() { return null; }
+        function CertificateView() { return null; }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
