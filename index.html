@@ -11,6 +11,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         ::-webkit-scrollbar { width: 8px; }
@@ -20,7 +21,7 @@
         .hidden-view { display: none !important; }
     </style>
 </head>
-<body class="bg-purple-400 text-slate-900 font-serif min-h-screen flex flex-col justify-between">
+<body class="bg-gradient-to-br from-white via-purple-50 to-fuchsia-100 text-slate-900 font-serif min-h-screen flex flex-col justify-between">
     
     <nav class="bg-purple-950 text-white p-4 shadow-2xl border-b border-purple-800 sticky top-0 z-50">
         <div class="max-w-5xl mx-auto flex justify-between items-center gap-2">
@@ -39,13 +40,13 @@
     <main class="max-w-4xl mx-auto p-4 md:p-8 flex-grow w-full">
         
         <div id="view-home" class="space-y-12 font-sans transition-all duration-300">
-            <div class="text-center bg-white/10 backdrop-blur-md p-8 md:p-16 rounded-3xl shadow-2xl border border-white/20 text-white">
+            <div class="text-center bg-white/40 backdrop-blur-md p-8 md:p-16 rounded-3xl shadow-2xl border border-white/60">
                 <img src="https://cdn.phototourl.com/free/2026-07-01-3996ae3a-18af-4c68-98df-9cf21911e2ba.jpg" alt="ZEC Logo" class="w-28 h-28 object-contain rounded-full bg-white p-1 shadow-2xl mx-auto mb-6 border-4 border-purple-300" />
-                <h2 class="text-4xl md:text-5xl font-serif mb-6 drop-shadow-md">Elevate Your Writing with ZEC</h2>
-                <p class="text-lg text-purple-100 max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow">
+                <h2 class="text-4xl md:text-5xl font-serif mb-6 text-purple-950 font-bold">Elevate Your Writing with ZEC</h2>
+                <p class="text-lg text-slate-700 max-w-2xl mx-auto mb-10 leading-relaxed">
                     We deliver professional proofreading, grammar checking, and academic editing services that support high-quality written outputs for students and professionals.
                 </p>
-                <button onclick="switchView('order')" class="bg-white text-purple-900 font-bold px-10 py-4 rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:bg-purple-100 transition transform hover:scale-105 text-lg">
+                <button onclick="switchView('order')" class="bg-purple-700 text-white font-bold px-10 py-4 rounded-full shadow-xl hover:bg-purple-600 transition transform hover:scale-105 text-lg">
                     Start Service Request
                 </button>
             </div>
@@ -96,8 +97,8 @@
                 <div id="step-1-content" class="pb-4 bg-white">
                     <div class="mb-8 text-center border-b border-slate-200 pb-6">
                         <span class="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Step 1 of 2</span>
-                        <h2 class="text-3xl text-purple-950 font-serif font-bold mt-4">Service Calculator</h2>
-                        <p class="text-slate-500 text-sm mt-2">Compute your estimated fee and save it as a Photo to proceed.</p>
+                        <h2 class="text-3xl text-purple-950 font-serif font-bold mt-4">Service Fee Summary</h2>
+                        <p class="text-slate-500 text-sm mt-2">Compute your fee and generate a summary to proceed.</p>
                     </div>
                     
                     <div class="space-y-5 mb-8">
@@ -161,7 +162,7 @@
                     </div>
 
                     <div class="bg-gradient-to-r from-purple-100 to-fuchsia-100 border border-purple-200 p-6 rounded-2xl shadow-inner text-center">
-                        <span class="text-sm font-bold text-purple-900 uppercase tracking-widest">Estimated Total Fee</span>
+                        <span class="text-sm font-bold text-purple-900 uppercase tracking-widest">Total Service Fee</span>
                         <div id="display-price" class="text-4xl font-bold text-purple-700 mt-2 mb-2">₱0.00</div>
                         <div id="timeframe-container" class="hidden text-sm text-purple-800 justify-center font-medium mt-2">
                             Expected Turnaround: <span id="display-timeframe" class="ml-1 font-bold"></span>
@@ -185,6 +186,28 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="print-summary-container" class="hidden mb-6 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm w-full max-w-sm mx-auto">
+                    <div class="text-center mb-4">
+                        <h2 class="text-lg font-bold text-purple-950 font-serif leading-tight mt-2">ZEC Educational Consultancy Services</h2>
+                        <p class="text-[11px] text-slate-500 font-sans uppercase tracking-wider mt-1 font-bold">Service Fee Summary</p>
+                    </div>
+                    <div class="border-t border-b border-slate-100 py-3 mb-4 text-xs font-sans space-y-2 text-slate-700">
+                        <div class="flex justify-between"><span class="font-bold text-slate-900">Level:</span> <span id="sum-level" class="text-right"></span></div>
+                        <div class="flex justify-between"><span class="font-bold text-slate-900">Service:</span> <span id="sum-type" class="text-right"></span></div>
+                        <div class="flex justify-between"><span class="font-bold text-slate-900">Words:</span> <span id="sum-words" class="text-right"></span></div>
+                        <div class="flex justify-between"><span class="font-bold text-slate-900">Delivery:</span> <span id="sum-speed" class="text-right"></span></div>
+                        <div class="flex justify-between"><span class="font-bold text-slate-900">Certificate:</span> <span id="sum-cert" class="text-right"></span></div>
+                    </div>
+                    <div class="text-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Fee</p>
+                        <p class="text-3xl font-bold text-purple-800 font-sans" id="sum-price"></p>
+                        <p class="text-[11px] text-slate-600 mt-1 font-medium font-sans" id="sum-timeframe"></p>
+                    </div>
+                    <div class="mt-4 text-[9px] text-center text-slate-400 font-sans leading-tight">
+                        * You may send your payment to GCash: 09451570338
+                    </div>
+                </div>
                 
                 <div id="confirm-section" class="mt-6 flex items-center justify-center border-t border-slate-200 pt-6">
                     <label class="flex items-center gap-3 cursor-pointer p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition w-full justify-center">
@@ -195,7 +218,7 @@
 
                 <button id="btn-save-pdf" disabled onclick="saveAsPhoto()" class="mt-4 w-full bg-slate-300 text-slate-500 font-bold px-6 py-4 rounded-xl cursor-not-allowed transition shadow-sm text-lg flex justify-center items-center gap-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Download as Photo
+                    Save as PDF / Summary
                 </button>
 
                 <button id="btn-next-step" onclick="goToStep2()" class="hidden mt-4 w-full bg-green-600 text-white font-bold px-6 py-4 rounded-xl hover:bg-green-500 transition shadow-lg text-lg flex justify-center items-center gap-2">
@@ -212,7 +235,7 @@
                 </div>
 
                 <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-10 text-center flex flex-col items-center justify-center">
-                    <a href="https://forms.gle/g7ToV9HfUdrFWmGs6" target="_blank" class="inline-flex items-center gap-3 bg-green-600 text-white font-bold px-8 py-5 rounded-xl hover:bg-green-500 transition shadow-lg text-xl">
+                    <a id="gform-link" href="https://forms.gle/g7ToV9HfUdrFWmGs6" target="_blank" onclick="enableStep2Form()" class="inline-flex items-center gap-3 bg-green-600 text-white font-bold px-8 py-5 rounded-xl hover:bg-green-500 transition shadow-lg text-xl">
                         Go to Official Submission Form
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                     </a>
@@ -220,12 +243,24 @@
                 </div>
                 
                 <div class="mt-6 border-t border-slate-200 pt-6">
-                    <label class="flex items-start gap-3 cursor-pointer p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
-                        <input type="checkbox" id="agreement-checkbox" class="mt-0.5 w-5 h-5 text-purple-600 rounded border-slate-300 focus:ring-purple-500" onchange="toggleDoneButton()" />
-                        <span class="text-sm text-slate-700 font-medium leading-tight">
-                            I agree to pay the required fee immediately after receiving the edited paper and before the certificate is sent.
-                        </span>
-                    </label>
+                    <div id="step2-warning" class="mb-4 p-3 bg-red-100 text-red-900 border border-red-300 rounded-lg text-sm font-bold text-center animate-pulse">
+                        🚨 Please click the official submission form link above to upload your documents before checking these boxes.
+                    </div>
+
+                    <div id="checkboxes-container" class="opacity-50 pointer-events-none space-y-3 transition-opacity duration-300">
+                        <label class="flex items-start gap-3 cursor-pointer p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
+                            <input type="checkbox" id="agreement-docs" disabled class="mt-0.5 w-5 h-5 text-purple-600 rounded border-slate-300 focus:ring-purple-500" onchange="toggleDoneButton()" />
+                            <span class="text-sm text-slate-700 font-medium leading-tight">
+                                I confirm that I have successfully submitted all necessary documents through the official form.
+                            </span>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer p-4 bg-slate-50 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
+                            <input type="checkbox" id="agreement-pay" disabled class="mt-0.5 w-5 h-5 text-purple-600 rounded border-slate-300 focus:ring-purple-500" onchange="toggleDoneButton()" />
+                            <span class="text-sm text-slate-700 font-medium leading-tight">
+                                I agree to pay the required fee immediately after receiving the edited paper and before the certificate is sent.
+                            </span>
+                        </label>
+                    </div>
                     
                     <button id="btn-done" disabled onclick="showSuccessPopup()" class="mt-6 w-full py-4 bg-slate-300 text-slate-500 font-bold rounded-xl cursor-not-allowed transition text-lg shadow-sm">
                         Done
@@ -389,62 +424,77 @@
 
         function saveAsPhoto() {
             if(currentPrice === 0) {
-                alert("Please complete the service calculator by providing your word count before saving.");
+                alert("Please complete the service fee summary by providing your word count before saving.");
                 return;
             }
 
-            const element = document.getElementById('step-1-content');
             const btn = document.getElementById('btn-save-pdf');
-            
-            btn.innerHTML = "Generating Photo... Please wait.";
+            btn.innerHTML = "Generating Summary & PDF... Please wait.";
             btn.classList.add('opacity-70', 'cursor-not-allowed');
 
-            html2canvas(element, { 
-                scale: 2, 
-                useCORS: true, 
-                backgroundColor: "#ffffff" 
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const nextBtn = document.getElementById('btn-next-step');
-                
-                // I-check kung cellphone o tablet ang gamit ng user
-                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-                
-                if (isMobile) {
-                    // KAPAG MOBILE: Ipakita ang image sa screen para ma-long press at mai-save nila
-                    const mobileImg = document.createElement('img');
-                    mobileImg.src = imgData;
-                    mobileImg.className = "w-full rounded-xl shadow-md my-4 border-2 border-purple-300 p-1";
-                    
-                    const instruction = document.createElement('p');
-                    instruction.className = "text-center text-xs text-purple-900 font-bold mb-4 bg-purple-100 p-3 rounded-xl animate-pulse border border-purple-200";
-                    instruction.innerText = "📸 HELD IMAGE TO SAVE: Diinan nang matagal (Long Press) ang larawan sa itaas at i-click ang 'Save to Photos' o 'Download Image'.";
-                    
-                    // Isalpak ang image at instruction bago lumabas ang Next Button
+            // Populate the clean summary box
+            const typeEl = document.getElementById('form-type');
+            const levelEl = document.getElementById('form-level');
+            
+            document.getElementById('sum-level').innerText = levelEl.options[levelEl.selectedIndex].text;
+            document.getElementById('sum-type').innerText = typeEl.options[typeEl.selectedIndex].text;
+            document.getElementById('sum-words').innerText = document.getElementById('form-words').value;
+            
+            const speed = document.querySelector('input[name="speed"]:checked').value;
+            document.getElementById('sum-speed').innerText = speed === 'rush' ? 'Rush Delivery' : 'Regular Delivery';
+            
+            document.getElementById('sum-cert').innerText = document.getElementById('form-cert').checked ? 'Included' : 'Not Included';
+            
+            document.getElementById('sum-price').innerText = '₱' + currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('sum-timeframe').innerText = currentTimeframe;
+
+            // Show the summary box on screen para ready for screenshot
+            const summaryElement = document.getElementById('print-summary-container');
+            summaryElement.classList.remove('hidden');
+
+            // Hide the confirm section and the save button temporarily
+            document.getElementById('confirm-section').style.display = 'none';
+            btn.style.display = 'none';
+
+            setTimeout(() => {
+                const opt = {
+                    margin:       0.2,
+                    filename:     'ZEC-Service-Fee-Summary.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0 },
+                    jsPDF:        { unit: 'in', format: [4.5, 6], orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(summaryElement).save().then(() => {
                     const wrapper = document.getElementById('step-1-wrapper');
-                    wrapper.insertBefore(mobileImg, nextBtn);
-                    wrapper.insertBefore(instruction, nextBtn);
-                } else {
-                    // KAPAG PC/DESKTOP: Automatic download gaya ng dati
-                    const link = document.createElement('a');
-                    link.href = imgData;
-                    link.download = 'ZEC-Calculator-Summary.png';
-                    link.click();
-                }
-                
-                // Itago ang confirmation checkbox at ang download button
-                document.getElementById('confirm-section').style.display = 'none';
-                btn.style.display = 'none';
-                
-                // Ipakita ang Next Button papuntang Step 2
-                nextBtn.classList.remove('hidden');
-                nextBtn.classList.add('flex');
-            }).catch(err => {
-                console.error("Error generating image:", err);
-                alert("Failed to generate photo. Please try again.");
-                btn.innerHTML = "Download as Photo";
-                btn.classList.remove('opacity-70', 'cursor-not-allowed');
-            });
+                    const nextBtn = document.getElementById('btn-next-step');
+                    
+                    if (!document.getElementById('screenshot-instruction')) {
+                        const instruction = document.createElement('p');
+                        instruction.id = 'screenshot-instruction';
+                        instruction.className = "text-center text-xs text-purple-900 font-bold mt-4 mb-4 bg-purple-100 p-3 rounded-xl border border-purple-200 animate-pulse";
+                        instruction.innerText = "📄 PDF Generating! For your convenience, you may also screenshot the summary box above.";
+                        wrapper.insertBefore(instruction, nextBtn);
+                    }
+
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.classList.add('flex');
+                    
+                    // I-reset ang button sakaling gusto ulit pindutin
+                    btn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Save as PDF / Summary';
+                    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                }).catch(err => {
+                    console.error("Error generating PDF:", err);
+                    alert("Failed to generate PDF automatically. You can safely screenshot the summary box above.");
+                    const nextBtn = document.getElementById('btn-next-step');
+                    nextBtn.classList.remove('hidden');
+                    nextBtn.classList.add('flex');
+                    
+                    btn.style.display = 'flex';
+                    btn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Save as PDF / Summary';
+                    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                });
+            }, 500); 
         }
 
         function goToStep2() {
@@ -454,10 +504,20 @@
             window.scrollTo(0, 0);
         }
 
+        function enableStep2Form() {
+            document.getElementById('step2-warning').classList.add('hidden');
+            const container = document.getElementById('checkboxes-container');
+            container.classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('agreement-docs').disabled = false;
+            document.getElementById('agreement-pay').disabled = false;
+        }
+
         function toggleDoneButton() {
-            const checkbox = document.getElementById('agreement-checkbox');
+            const checkDocs = document.getElementById('agreement-docs');
+            const checkPay = document.getElementById('agreement-pay');
             const btn = document.getElementById('btn-done');
-            if(checkbox.checked) {
+            
+            if(checkDocs.checked && checkPay.checked) {
                 btn.disabled = false;
                 btn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
                 btn.classList.add('bg-green-500', 'text-white', 'hover:bg-green-400');
@@ -487,14 +547,27 @@
             
             document.getElementById('step-2-section').classList.add('hidden-view');
             document.getElementById('step-1-wrapper').classList.remove('hidden-view');
-            document.getElementById('agreement-checkbox').checked = false;
+            
+            // Reset Step 2 Checkboxes
+            document.getElementById('agreement-docs').checked = false;
+            document.getElementById('agreement-pay').checked = false;
+            document.getElementById('agreement-docs').disabled = true;
+            document.getElementById('agreement-pay').disabled = true;
+            document.getElementById('checkboxes-container').classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('step2-warning').classList.remove('hidden');
+            
             document.getElementById('confirm-calc-checkbox').checked = false;
+            
+            // Clean up summary box and instruction para ready ulit
+            document.getElementById('print-summary-container').classList.add('hidden');
+            const instruction = document.getElementById('screenshot-instruction');
+            if(instruction) instruction.remove();
             
             document.getElementById('confirm-section').style.display = 'flex';
             
             const btn = document.getElementById('btn-save-pdf');
             btn.style.display = 'flex';
-            btn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Download as Photo';
+            btn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg> Save as PDF / Summary';
             
             const nextBtn = document.getElementById('btn-next-step');
             nextBtn.classList.add('hidden');
